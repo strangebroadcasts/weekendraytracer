@@ -1,6 +1,7 @@
 package weekendraytracer
 
 import (
+	"math"
 	"math/rand"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -62,4 +63,45 @@ func (m Metallic) Scatter(rIn Ray, hit HitRecord) (bool, mgl64.Vec3, Ray) {
 func reflect(v, n mgl64.Vec3) mgl64.Vec3 {
 	t := n.Mul(2 * v.Dot(n))
 	return v.Sub(t)
+}
+
+// Dielectric surfaces both reflect and refract light:
+type Dielectric struct {
+	Refractance float64
+}
+
+// refract simulates the refraction of vector v against the surface normal n,
+// returning whether the ray is refracted (and the refracted ray if it is)
+func refract(v mgl64.Vec3, n mgl64.Vec3, refractRatio float64) (bool, mgl64.Vec3) {
+	uv := v.Normalize()
+	dt := uv.Dot(n)
+	discriminant := 1.0 - refractRatio*refractRatio*(1.0-dt*dt)
+	if discriminant > 0.0 {
+		a := uv.Sub(n.Mul(dt)).Mul(refractRatio)
+		b := n.Mul(math.Sqrt(discriminant))
+		refracted := a.Sub(b)
+		return true, refracted
+	}
+	return false, mgl64.Vec3{}
+}
+
+// Scatter simulates the reflection off a dielectric surface.
+func (d Dielectric) Scatter(rIn Ray, hit HitRecord) (bool, mgl64.Vec3, Ray) {
+	var outwardNormal mgl64.Vec3
+	var refractRatio float64
+	reflected := reflect(rIn.Direction(), hit.Normal)
+	attenuation := mgl64.Vec3{1.0, 1.0, 1.0}
+	if rIn.Direction().Dot(hit.Normal) > 0 {
+		outwardNormal = hit.Normal.Mul(-1.0)
+		refractRatio = d.Refractance
+	} else {
+		outwardNormal = hit.Normal
+		refractRatio = 1.0 / d.Refractance
+	}
+
+	isRefracted, refracted := refract(rIn.Direction(), outwardNormal, refractRatio)
+	if isRefracted {
+		return true, attenuation, Ray{A: hit.P, B: refracted}
+	}
+	return false, attenuation, Ray{A: hit.P, B: reflected}
 }

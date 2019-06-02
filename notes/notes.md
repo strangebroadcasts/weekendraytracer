@@ -29,3 +29,9 @@
   * This sphere has center $(p+N)$
   * This approach requires generating random points inside a unit sphere. RTiaW uses a rejection method here.
 * Look up color spaces, gamma transform: RTiaW uses a very simple transform here.
+* "When a light ray hits a dielectric surface, it splits into a reflacted and a refracted (transmitted) ray."
+  * Solution: randomly select between refracting and reflecting the ray.
+  * Debug by refracting all light
+  * Refraction is described by Snell's law $n \cdot \text{sin} (\theta) = n' \cdot \text{sin} (\theta')$, where $n$ and $n'$ are *refractive indices*
+  * When the ray is inside the material with the *higher* refractive index, there is no(?) solution to Snell's law and refraction isn't possible
+  * In these cases, we have *total internal reflection*: all light is reflected (think: water-air boundary)

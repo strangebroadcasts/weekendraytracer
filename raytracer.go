@@ -75,7 +75,7 @@ func Render(width int, height int, samples int) image.Image {
 	world[3] = Sphere{
 		Center: mgl64.Vec3{-1.0, 0.0, -1.0},
 		Radius: 0.5,
-		Mat:    Metallic{Albedo: mgl64.Vec3{0.8, 0.8, 0.8}, Fuzziness: 0.3}}
+		Mat:    Dielectric{Refractance: 1.5}}
 
 	for j := 0; j < height; j++ {
 		for i := 0; i < width; i++ {
