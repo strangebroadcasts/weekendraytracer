@@ -12,7 +12,7 @@ import (
 func main() {
 	width := flag.Int("width", 400, "Width of image")
 	height := flag.Int("height", 200, "Height of image")
-	samples := flag.Int("samples", 8, "Samples for antialiasing")
+	samples := flag.Int("samples", 32, "Samples for antialiasing")
 	outputPath := flag.String("output", "out.png", "Output path")
 	flag.Parse()
 	image := weekendraytracer.Render(*width, *height, *samples)

@@ -9,6 +9,10 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
+// Epsilon is the lower distance bound for reflections
+// (used to combat shadow acne)
+const Epsilon = 0.001
+
 // randomInsideUnitSphere generates a random vector inside a unit sphere:
 func randomInsideUnitSphere() mgl64.Vec3 {
 	p := mgl64.Vec3{99.0, 99.0, 99.0}
@@ -24,7 +28,7 @@ func randomInsideUnitSphere() mgl64.Vec3 {
 // Get the pixel color for this ray.
 // (Called "color" in RTiaW, which conflicts with the color package)
 func getColor(r Ray, world HittableList) mgl64.Vec3 {
-	hits := world.Hit(r, 0.0, math.MaxFloat64)
+	hits := world.Hit(r, Epsilon, math.MaxFloat64)
 	if len(hits) > 0 {
 		// HittableList makes sure the first (and only) intersection
 		// is the closest one:
