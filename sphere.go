@@ -14,7 +14,7 @@ type Sphere struct {
 
 // Hit checks whether the ray r intersects this sphere:
 func (s Sphere) Hit(r Ray, tMin float64, tMax float64) []HitRecord {
-	recs := make([]HitRecord, 0)
+	recs := make([]HitRecord, 0, 2)
 	oc := r.Origin().Sub(s.Center)
 	a := r.Direction().Dot(r.Direction())
 	b := 2.0 * oc.Dot(r.Direction())
@@ -24,14 +24,14 @@ func (s Sphere) Hit(r Ray, tMin float64, tMax float64) []HitRecord {
 	// two intersections:
 	if discriminant > 0 {
 		temp := (-b - math.Sqrt(b*b-a*c)) / a
-		if temp < tMin && temp > tMin {
+		if temp < tMax && temp > tMin {
 			p := r.PointAtParameter(temp)
 			normal := r.PointAtParameter(temp).Sub(s.Center).Mul(1.0 / s.Radius)
 			hit := HitRecord{T: temp, P: p, Normal: normal}
 			recs = append(recs, hit)
 		}
 		temp = (-b + math.Sqrt(b*b-a*c)) / a
-		if temp < tMin && temp > tMin {
+		if temp < tMax && temp > tMin {
 			p := r.PointAtParameter(temp)
 			normal := r.PointAtParameter(temp).Sub(s.Center).Mul(1.0 / s.Radius)
 			hit := HitRecord{T: temp, P: p, Normal: normal}
