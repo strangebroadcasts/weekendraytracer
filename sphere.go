@@ -17,9 +17,9 @@ func (s Sphere) Hit(r Ray, tMin float64, tMax float64) []HitRecord {
 	recs := make([]HitRecord, 0, 2)
 	oc := r.Origin().Sub(s.Center)
 	a := r.Direction().Dot(r.Direction())
-	b := 2.0 * oc.Dot(r.Direction())
+	b := oc.Dot(r.Direction())
 	c := oc.Dot(oc) - s.Radius*s.Radius
-	discriminant := b*b - 4*a*c
+	discriminant := b*b - a*c
 	// If the discriminant is positive, we have one or
 	// two intersections:
 	if discriminant > 0 {

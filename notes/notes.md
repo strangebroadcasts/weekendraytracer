@@ -19,3 +19,4 @@
 * RTiaW's solution is $t^2 (B \cdot B) + 2t (B \cdot (A-C)) + (A-C) \cdot (A-C) - R^2 = 0$
 * The surface normal is perpendicular to the surface. For spheres, the normal is in the direction of the intersection point minus the sphere center.
 * We normalize normals to unit length (convenient for shading)
+* To make the raytracer generalizable, we create a general interface "Hittable", which determines whether a ray intersects a particular primitive.
