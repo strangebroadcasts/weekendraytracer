@@ -70,6 +70,8 @@ func Render(width int, height int, samples int) image.Image {
 				col = col.Add(getColor(r, world))
 			}
 			col = col.Mul(1.0 / float64(samples))
+			// Gamma-correct the colors:
+			col = mgl64.Vec3{math.Sqrt(col[0]), math.Sqrt(col[1]), math.Sqrt(col[2])}
 			ir, ig, ib := uint8(255.99*col.X()), uint8(255.99*col.Y()), uint8(255.99*col.Z())
 			canvas.Set(i, j, color.NRGBA{R: ir, G: ig, B: ib, A: 255})
 		}

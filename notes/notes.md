@@ -24,7 +24,8 @@
 * "Diffuse objects that don't emit light merely take on the color of their surroundings, but modulate it with their own intrinsic color."
 * Light is reflected off diffuse surfaces in random directions.
 * Light can also be absorbed by diffuse surfaces - the darker the surface, the more light it absorbs
-* We use an approximation that should be "exactly correct for ideal diffuse surfaces": 
+* We use an approximation that should be "exactly correct for ideal diffuse surfaces":
   * We pick a random point $s$ from the unit radius sphere tangent to the intersection point $p$, and cast a ray from $p$ to $s$.
   * This sphere has center $(p+N)$
   * This approach requires generating random points inside a unit sphere. RTiaW uses a rejection method here.
+* Look up color spaces, gamma transform: RTiaW uses a very simple transform here.
