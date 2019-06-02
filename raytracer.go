@@ -10,11 +10,27 @@ import (
 // Get the color of the background for this ray.
 // (Called "color" in RTiaW, which conflicts with the color package)
 func bgColor(r Ray) mgl64.Vec3 {
+	sphereOrigin := mgl64.Vec3{0.0, 0.0, -1.0}
+	if raySphereIntersect(sphereOrigin, 0.5, r) {
+		return mgl64.Vec3{1.0, 0.0, 0.0}
+	}
 	unitDirection := r.Direction().Normalize()
 	t := 0.5*unitDirection.Y() + 1.0
+	// Linearly interpolate between white and blue:
 	A := mgl64.Vec3{1.0, 1.0, 1.0}.Mul(1.0 - t)
 	B := mgl64.Vec3{0.5, 0.7, 1.0}.Mul(t)
 	return A.Add(B)
+}
+
+// Test whether the sphere with origin in center, of the given radius,
+// intersects with the ray r.
+func raySphereIntersect(center mgl64.Vec3, radius float64, r Ray) bool {
+	oc := r.Origin().Sub(center)
+	a := r.Direction().Dot(r.Direction())
+	b := 2.0 * oc.Dot(r.Direction())
+	c := oc.Dot(oc) - radius*radius
+	discriminant := b*b - 4*a*c
+	return discriminant > 0
 }
 
 // Render ray-traces the scene, outputting an image with the given dimensions.

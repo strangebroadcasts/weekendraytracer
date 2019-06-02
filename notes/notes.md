@@ -8,3 +8,12 @@
   * Right-handed coordinate system: X-axis goes right, Y-axis goes up, Z-axis goes towards the viewer (and conversely, negative Z-axis is "into the screen")
   * Traverse the screen from the lower-left corner
 * No need to normalize ray direction vector
+* Recall the equation for a sphere of radius R centered at the origin is $x^2 + y^2 + z^2 = R^2$
+* The ray from the center $C=[cx,cy,cz]$ to the point $p=[x,y,z]$ is $p-C$.
+* We can then rewrite the sphere equation for rays as $(p-C) \cdot (p-C) = R^2$
+* First, we want to determine if there's an intersection at all. We can solve this analytically:
+  * $(p(t) - c) \cdot (p(t) - c) = R^2$
+  * $(A + tB - C) \cdot (A + tB - C) - R^2 = 0$
+  * Let $D = A - C$, so $(D + tB) \cdot (D + tB) - R^2 = 0$
+  * TODO: Finish this derivation
+* RTiaW's solution is $t^2 (B \cdot B) + 2t (B \cdot (A-C)) + (A-C) \cdot (A-C) - R^2 = 0$
