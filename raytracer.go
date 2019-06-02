@@ -13,31 +13,32 @@ import (
 // (used to combat shadow acne)
 const Epsilon = 0.001
 
-// randomInsideUnitSphere generates a random vector inside a unit sphere:
-func randomInsideUnitSphere() mgl64.Vec3 {
-	p := mgl64.Vec3{99.0, 99.0, 99.0}
-	for p.LenSqr() >= 1.0 {
-		x := (2.0 * rand.Float64()) - 1.0
-		y := (2.0 * rand.Float64()) - 1.0
-		z := (2.0 * rand.Float64()) - 1.0
-		p = mgl64.Vec3{x, y, z}
-	}
-	return p
-}
+// MaxBounces is how many light bounces we allow at most.
+const MaxBounces = 10
 
 // Get the pixel color for this ray.
 // (Called "color" in RTiaW, which conflicts with the color package)
-func getColor(r Ray, world HittableList) mgl64.Vec3 {
+func getColor(r Ray, world HittableList, depth int) mgl64.Vec3 {
+	mat := Lambertian{Albedo: mgl64.Vec3{0.8, 0.3, 0.3}}
 	hits := world.Hit(r, Epsilon, math.MaxFloat64)
 	if len(hits) > 0 {
 		// HittableList makes sure the first (and only) intersection
 		// is the closest one:
 		hit := hits[0]
-		// Find the ray reflecting off the surface:
-		target := hit.P.Add(hit.Normal).Add(randomInsideUnitSphere())
-		reflection := Ray{A: hit.P, B: target.Sub(hit.P)}
-		// Our initial diffuse surface absorbs 50% of the light hitting it.
-		return getColor(reflection, world).Mul(0.5)
+		// Simulate the light response of this material.
+		isScattered, attenuation, scattered := mat.Scatter(r, hit)
+		// If this ray is reflected off the surface, determine the response
+		// of the scattered ray:
+		if isScattered && depth < MaxBounces {
+			response := getColor(scattered, world, depth+1)
+
+			return mgl64.Vec3{response.X() * attenuation.X(),
+				response.Y() * attenuation.Y(),
+				response.Z() * attenuation.Z()}
+		}
+		// Otherwise, the ray was absorbed, or we have exceeded the
+		// maximum number of light bounces:
+		return mgl64.Vec3{0.0, 0.0, 0.0}
 	}
 	// If we don't intersect with anything, plot a background instead:
 	unitDirection := r.Direction().Normalize()
@@ -71,7 +72,7 @@ func Render(width int, height int, samples int) image.Image {
 				// Note that we flip the vertical axis here.
 				v := (float64(height-j) + rand.Float64()) / float64(height)
 				r := cam.GetRay(u, v)
-				col = col.Add(getColor(r, world))
+				col = col.Add(getColor(r, world, 0))
 			}
 			col = col.Mul(1.0 / float64(samples))
 			// Gamma-correct the colors:
