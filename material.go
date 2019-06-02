@@ -43,13 +43,16 @@ func randomInsideUnitSphere() mgl64.Vec3 {
 
 // Metallic surfaces reflect light.
 type Metallic struct {
-	Albedo mgl64.Vec3
+	Albedo    mgl64.Vec3
+	Fuzziness float64
 }
 
 // Scatter simulates the reflection off a metallic surface.
 func (m Metallic) Scatter(rIn Ray, hit HitRecord) (bool, mgl64.Vec3, Ray) {
+	// To simulate uneven surfaces, we distort the reflection slightly:
+	fuzz := randomInsideUnitSphere().Mul(m.Fuzziness)
 	reflected := reflect(rIn.Direction().Normalize(), hit.Normal)
-	scattered := Ray{A: hit.P, B: reflected}
+	scattered := Ray{A: hit.P, B: reflected.Add(fuzz)}
 	attenuation := m.Albedo
 	isScattered := scattered.Direction().Dot(hit.Normal) > 0
 	return isScattered, attenuation, scattered
