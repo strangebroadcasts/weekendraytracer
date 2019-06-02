@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"math/rand"
 
 	"github.com/go-gl/mathgl/mgl64"
 )
@@ -28,7 +29,7 @@ func getColor(r Ray, world HittableList) mgl64.Vec3 {
 }
 
 // Render ray-traces the scene, outputting an image with the given dimensions.
-func Render(width int, height int) image.Image {
+func Render(width int, height int, samples int) image.Image {
 	canvas := image.NewNRGBA(image.Rect(0, 0, width, height))
 
 	cam := Camera{
@@ -44,10 +45,15 @@ func Render(width int, height int) image.Image {
 
 	for j := 0; j < height; j++ {
 		for i := 0; i < width; i++ {
-			// Note that we flip the vertical axis here.
-			u, v := float64(i)/float64(width), float64(height-j)/float64(height)
-			r := cam.GetRay(u, v)
-			col := getColor(r, world)
+			col := mgl64.Vec3{}
+			for s := 0; s < samples; s++ {
+				u := (float64(i) + rand.Float64()) / float64(width)
+				// Note that we flip the vertical axis here.
+				v := (float64(height-j) + rand.Float64()) / float64(height)
+				r := cam.GetRay(u, v)
+				col = col.Add(getColor(r, world))
+			}
+			col = col.Mul(1.0 / float64(samples))
 			ir, ig, ib := uint8(255.99*col.X()), uint8(255.99*col.Y()), uint8(255.99*col.Z())
 			canvas.Set(i, j, color.NRGBA{R: ir, G: ig, B: ib, A: 255})
 		}
