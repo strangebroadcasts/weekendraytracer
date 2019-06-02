@@ -31,10 +31,12 @@ func getColor(r Ray, world HittableList) mgl64.Vec3 {
 func Render(width int, height int) image.Image {
 	canvas := image.NewNRGBA(image.Rect(0, 0, width, height))
 
-	lowerLeftCorner := mgl64.Vec3{-2.0, -1.0, -1.0}
-	horizontal := mgl64.Vec3{4.0, 0.0, 0.0}
-	vertical := mgl64.Vec3{0.0, 2.0, 0.0}
-	origin := mgl64.Vec3{0.0, 0.0, 0.0}
+	cam := Camera{
+		LowerLeftCorner: mgl64.Vec3{-2.0, -1.0, -1.0},
+		Horizontal:      mgl64.Vec3{4.0, 0.0, 0.0},
+		Vertical:        mgl64.Vec3{0.0, 2.0, 0.0},
+		Origin:          mgl64.Vec3{0.0, 0.0, 0.0},
+	}
 
 	world := make(HittableList, 2)
 	world[0] = Sphere{Center: mgl64.Vec3{0.0, 0.0, -1.0}, Radius: 0.5}
@@ -44,8 +46,7 @@ func Render(width int, height int) image.Image {
 		for i := 0; i < width; i++ {
 			// Note that we flip the vertical axis here.
 			u, v := float64(i)/float64(width), float64(height-j)/float64(height)
-			rayDirection := lowerLeftCorner.Add(horizontal.Mul(u).Add(vertical.Mul(v)))
-			r := Ray{A: origin, B: rayDirection}
+			r := cam.GetRay(u, v)
 			col := getColor(r, world)
 			ir, ig, ib := uint8(255.99*col.X()), uint8(255.99*col.Y()), uint8(255.99*col.Z())
 			canvas.Set(i, j, color.NRGBA{R: ir, G: ig, B: ib, A: 255})
