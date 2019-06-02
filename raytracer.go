@@ -59,11 +59,11 @@ func Render(width int, height int, samples int) image.Image {
 		Origin:          mgl64.Vec3{0.0, 0.0, 0.0},
 	}
 
-	world := make(HittableList, 4)
+	world := make(HittableList, 5)
 	world[0] = Sphere{
 		Center: mgl64.Vec3{0.0, 0.0, -1.0},
 		Radius: 0.5,
-		Mat:    Lambertian{Albedo: mgl64.Vec3{0.8, 0.3, 0.3}}}
+		Mat:    Lambertian{Albedo: mgl64.Vec3{0.1, 0.2, 0.5}}}
 	world[1] = Sphere{
 		Center: mgl64.Vec3{0.0, -100.5, -1.0},
 		Radius: 100,
@@ -71,10 +71,14 @@ func Render(width int, height int, samples int) image.Image {
 	world[2] = Sphere{
 		Center: mgl64.Vec3{1.0, 0.0, -1.0},
 		Radius: 0.5,
-		Mat:    Metallic{Albedo: mgl64.Vec3{0.8, 0.6, 0.2}, Fuzziness: 1.0}}
+		Mat:    Metallic{Albedo: mgl64.Vec3{0.8, 0.6, 0.2}}}
 	world[3] = Sphere{
 		Center: mgl64.Vec3{-1.0, 0.0, -1.0},
 		Radius: 0.5,
+		Mat:    Dielectric{Refractance: 1.5}}
+	world[4] = Sphere{
+		Center: mgl64.Vec3{-1.0, 0.0, -1.0},
+		Radius: -0.45,
 		Mat:    Dielectric{Refractance: 1.5}}
 
 	for j := 0; j < height; j++ {

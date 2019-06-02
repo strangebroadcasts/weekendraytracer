@@ -85,23 +85,45 @@ func refract(v mgl64.Vec3, n mgl64.Vec3, refractRatio float64) (bool, mgl64.Vec3
 	return false, mgl64.Vec3{}
 }
 
+// schlick is Christophe Schlick's polynomial approximation of
+// the specular reflection coefficient:
+func schlick(cosine float64, refract float64) float64 {
+	r0 := (1.0 - refract) / (1.0 + refract)
+	r0 = r0 * r0
+	return r0 + (1.0-r0)*math.Pow((1-cosine), 5.0)
+}
+
 // Scatter simulates the reflection off a dielectric surface.
 func (d Dielectric) Scatter(rIn Ray, hit HitRecord) (bool, mgl64.Vec3, Ray) {
 	var outwardNormal mgl64.Vec3
 	var refractRatio float64
+	var cosine float64
+	var reflectProb float64
+
 	reflected := reflect(rIn.Direction(), hit.Normal)
 	attenuation := mgl64.Vec3{1.0, 1.0, 1.0}
 	if rIn.Direction().Dot(hit.Normal) > 0 {
 		outwardNormal = hit.Normal.Mul(-1.0)
 		refractRatio = d.Refractance
+		cosine = d.Refractance * rIn.Direction().Dot(hit.Normal) / rIn.Direction().Len()
 	} else {
 		outwardNormal = hit.Normal
 		refractRatio = 1.0 / d.Refractance
+		cosine = -1.0 * rIn.Direction().Dot(hit.Normal) / rIn.Direction().Len()
 	}
 
 	isRefracted, refracted := refract(rIn.Direction(), outwardNormal, refractRatio)
 	if isRefracted {
-		return true, attenuation, Ray{A: hit.P, B: refracted}
+		reflectProb = schlick(cosine, d.Refractance)
+	} else {
+		reflectProb = 1.0
 	}
-	return false, attenuation, Ray{A: hit.P, B: reflected}
+
+	var scattered mgl64.Vec3
+	if rand.Float64() < reflectProb {
+		scattered = reflected
+	} else {
+		scattered = refracted
+	}
+	return true, attenuation, Ray{A: hit.P, B: scattered}
 }

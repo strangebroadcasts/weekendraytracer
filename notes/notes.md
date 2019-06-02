@@ -35,3 +35,5 @@
   * Refraction is described by Snell's law $n \cdot \text{sin} (\theta) = n' \cdot \text{sin} (\theta')$, where $n$ and $n'$ are *refractive indices*
   * When the ray is inside the material with the *higher* refractive index, there is no(?) solution to Snell's law and refraction isn't possible
   * In these cases, we have *total internal reflection*: all light is reflected (think: water-air boundary)
+* Look up Schlick's approximation
+* Test reflection implementation for dielectric spheres
