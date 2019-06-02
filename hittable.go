@@ -23,7 +23,7 @@ type HittableList []Hittable
 // Hit checks whether any element in the list intersects the ray,
 // and returns the closest intersection (if any) in a single-element array.
 func (l HittableList) Hit(r Ray, tMin float64, tMax float64) []HitRecord {
-	recs := make([]HitRecord, 0)
+	recs := make([]HitRecord, 0, 1)
 	bestIntersection := HitRecord{T: tMax}
 	hitAnything := false
 	for _, primitive := range l {
