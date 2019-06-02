@@ -10,6 +10,7 @@ import (
 type Sphere struct {
 	Center mgl64.Vec3
 	Radius float64
+	Mat    Material
 }
 
 // Hit checks whether the ray r intersects this sphere:
@@ -27,16 +28,21 @@ func (s Sphere) Hit(r Ray, tMin float64, tMax float64) []HitRecord {
 		if temp < tMax && temp > tMin {
 			p := r.PointAtParameter(temp)
 			normal := r.PointAtParameter(temp).Sub(s.Center).Mul(1.0 / s.Radius)
-			hit := HitRecord{T: temp, P: p, Normal: normal}
+			hit := HitRecord{T: temp, P: p, Normal: normal, Mat: s.Mat}
 			recs = append(recs, hit)
 		}
 		temp = (-b + math.Sqrt(b*b-a*c)) / a
 		if temp < tMax && temp > tMin {
 			p := r.PointAtParameter(temp)
 			normal := r.PointAtParameter(temp).Sub(s.Center).Mul(1.0 / s.Radius)
-			hit := HitRecord{T: temp, P: p, Normal: normal}
+			hit := HitRecord{T: temp, P: p, Normal: normal, Mat: s.Mat}
 			recs = append(recs, hit)
 		}
 	}
 	return recs
+}
+
+// Material returns this sphere's material:
+func (s Sphere) Material() Material {
+	return s.Mat
 }

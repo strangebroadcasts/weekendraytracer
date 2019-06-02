@@ -19,14 +19,13 @@ const MaxBounces = 10
 // Get the pixel color for this ray.
 // (Called "color" in RTiaW, which conflicts with the color package)
 func getColor(r Ray, world HittableList, depth int) mgl64.Vec3 {
-	mat := Lambertian{Albedo: mgl64.Vec3{0.8, 0.3, 0.3}}
 	hits := world.Hit(r, Epsilon, math.MaxFloat64)
 	if len(hits) > 0 {
 		// HittableList makes sure the first (and only) intersection
 		// is the closest one:
 		hit := hits[0]
 		// Simulate the light response of this material.
-		isScattered, attenuation, scattered := mat.Scatter(r, hit)
+		isScattered, attenuation, scattered := hit.Mat.Scatter(r, hit)
 		// If this ray is reflected off the surface, determine the response
 		// of the scattered ray:
 		if isScattered && depth < MaxBounces {
@@ -61,8 +60,14 @@ func Render(width int, height int, samples int) image.Image {
 	}
 
 	world := make(HittableList, 2)
-	world[0] = Sphere{Center: mgl64.Vec3{0.0, 0.0, -1.0}, Radius: 0.5}
-	world[1] = Sphere{Center: mgl64.Vec3{0.0, -100.5, -1.0}, Radius: 100}
+	world[0] = Sphere{
+		Center: mgl64.Vec3{0.0, 0.0, -1.0},
+		Radius: 0.5,
+		Mat:    Lambertian{Albedo: mgl64.Vec3{0.8, 0.3, 0.3}}}
+	world[1] = Sphere{
+		Center: mgl64.Vec3{0.0, -100.5, -1.0},
+		Radius: 100,
+		Mat:    Lambertian{Albedo: mgl64.Vec3{0.8, 0.8, 0.0}}}
 
 	for j := 0; j < height; j++ {
 		for i := 0; i < width; i++ {
