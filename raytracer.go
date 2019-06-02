@@ -3,6 +3,8 @@ package weekendraytracer
 import (
 	"image"
 	"image/color"
+
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 // Render ray-traces the scene, outputting an image with the given dimensions.
@@ -13,8 +15,8 @@ func Render(width int, height int) image.Image {
 	// top to bottom, as RTiaW does:
 	for j := 0; j < height; j++ {
 		for i := 0; i < width; i++ {
-			r, g, b := float64(i)/float64(width), float64(j)/float64(height), 0.2
-			ir, ig, ib := uint8(255.99*r), uint8(255.99*g), uint8(255.99*b)
+			col := mgl64.Vec3{float64(i) / float64(width), float64(j) / float64(height), 0.2}
+			ir, ig, ib := uint8(255.99*col.X()), uint8(255.99*col.Y()), uint8(255.99*col.Z())
 			canvas.Set(i, j, color.NRGBA{R: ir, G: ig, B: ib, A: 255})
 		}
 	}
