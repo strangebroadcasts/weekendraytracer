@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	width := flag.Int("width", 200, "Width of image")
-	height := flag.Int("height", 100, "Height of image")
+	width := flag.Int("width", 400, "Width of image")
+	height := flag.Int("height", 200, "Height of image")
 	samples := flag.Int("samples", 8, "Samples for antialiasing")
 	outputPath := flag.String("output", "out.png", "Output path")
 	flag.Parse()

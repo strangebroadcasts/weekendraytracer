@@ -20,3 +20,11 @@
 * The surface normal is perpendicular to the surface. For spheres, the normal is in the direction of the intersection point minus the sphere center.
 * We normalize normals to unit length (convenient for shading)
 * To make the raytracer generalizable, we create a general interface "Hittable", which determines whether a ray intersects a particular primitive.
+* This ray tracer doesn't use "stratification" - look up at a later date
+* "Diffuse objects that don't emit light merely take on the color of their surroundings, but modulate it with their own intrinsic color."
+* Light is reflected off diffuse surfaces in random directions.
+* Light can also be absorbed by diffuse surfaces - the darker the surface, the more light it absorbs
+* We use an approximation that should be "exactly correct for ideal diffuse surfaces": 
+  * We pick a random point $s$ from the unit radius sphere tangent to the intersection point $p$, and cast a ray from $p$ to $s$.
+  * This sphere has center $(p+N)$
+  * This approach requires generating random points inside a unit sphere. RTiaW uses a rejection method here.

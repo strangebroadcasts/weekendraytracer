@@ -9,6 +9,18 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
+// randomInsideUnitSphere generates a random vector inside a unit sphere:
+func randomInsideUnitSphere() mgl64.Vec3 {
+	p := mgl64.Vec3{99.0, 99.0, 99.0}
+	for p.LenSqr() >= 1.0 {
+		x := (2.0 * rand.Float64()) - 1.0
+		y := (2.0 * rand.Float64()) - 1.0
+		z := (2.0 * rand.Float64()) - 1.0
+		p = mgl64.Vec3{x, y, z}
+	}
+	return p
+}
+
 // Get the pixel color for this ray.
 // (Called "color" in RTiaW, which conflicts with the color package)
 func getColor(r Ray, world HittableList) mgl64.Vec3 {
@@ -16,8 +28,12 @@ func getColor(r Ray, world HittableList) mgl64.Vec3 {
 	if len(hits) > 0 {
 		// HittableList makes sure the first (and only) intersection
 		// is the closest one:
-		N := hits[0].Normal
-		return N.Add(mgl64.Vec3{1.0, 1.0, 1.0}).Mul(0.5)
+		hit := hits[0]
+		// Find the ray reflecting off the surface:
+		target := hit.P.Add(hit.Normal).Add(randomInsideUnitSphere())
+		reflection := Ray{A: hit.P, B: target.Sub(hit.P)}
+		// Our initial diffuse surface absorbs 50% of the light hitting it.
+		return getColor(reflection, world).Mul(0.5)
 	}
 	// If we don't intersect with anything, plot a background instead:
 	unitDirection := r.Direction().Normalize()
