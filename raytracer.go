@@ -10,9 +10,9 @@ import (
 
 // Get the color of the background for this ray.
 // (Called "color" in RTiaW, which conflicts with the color package)
-func getColor(r Ray) mgl64.Vec3 {
-	sphereOrigin := mgl64.Vec3{0.0, 0.0, -1.0}
-	intersects, t := raySphereIntersect(sphereOrigin, 0.5, r)
+func getColor(r Ray, s Sphere) mgl64.Vec3 {
+	sphereOrigin := s.Center
+	intersects, t := raySphereIntersect(sphereOrigin, s.Radius, r)
 	if intersects {
 		N := r.PointAtParameter(t).Sub(sphereOrigin).Normalize()
 		return N.Add(mgl64.Vec3{1.0, 1.0, 1.0}).Mul(0.5)
@@ -51,13 +51,15 @@ func Render(width int, height int) image.Image {
 	vertical := mgl64.Vec3{0.0, 2.0, 0.0}
 	origin := mgl64.Vec3{0.0, 0.0, 0.0}
 
+	sphere := Sphere{Center: mgl64.Vec3{0.0, 0.0, -1.0}, Radius: 0.5}
+
 	for j := 0; j < height; j++ {
 		for i := 0; i < width; i++ {
 			// Note that we flip the vertical axis here.
 			u, v := float64(i)/float64(width), float64(height-j)/float64(height)
 			rayDirection := lowerLeftCorner.Add(horizontal.Mul(u).Add(vertical.Mul(v)))
 			r := Ray{A: origin, B: rayDirection}
-			col := getColor(r)
+			col := getColor(r, sphere)
 			ir, ig, ib := uint8(255.99*col.X()), uint8(255.99*col.Y()), uint8(255.99*col.Z())
 			canvas.Set(i, j, color.NRGBA{R: ir, G: ig, B: ib, A: 255})
 		}
