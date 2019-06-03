@@ -52,12 +52,19 @@ func getColor(r Ray, world HittableList, depth int) mgl64.Vec3 {
 func Render(width int, height int, samples int) image.Image {
 	canvas := image.NewNRGBA(image.Rect(0, 0, width, height))
 
+	from := mgl64.Vec3{3, 3, 2}
+	at := mgl64.Vec3{0.0, 0.0, -1.0}
+	fov := 20.0
+	aperture := 2.0
+	focusDistance := from.Sub(at).Len()
 	cam := NewCamera(
-		mgl64.Vec3{-2.0, 2.0, 1.0},
-		mgl64.Vec3{0.0, 0.0, -1.0},
+		from,
+		at,
 		mgl64.Vec3{0, 1.0, 0.0},
-		90.0,
-		float64(width)/float64(height))
+		fov,
+		float64(width)/float64(height),
+		aperture,
+		focusDistance)
 
 	world := make(HittableList, 5)
 	world[0] = Sphere{
