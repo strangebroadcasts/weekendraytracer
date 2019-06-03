@@ -52,17 +52,34 @@ func getColor(r Ray, world HittableList, depth int) mgl64.Vec3 {
 func Render(width int, height int, samples int) image.Image {
 	canvas := image.NewNRGBA(image.Rect(0, 0, width, height))
 
-	cam := NewCamera(90.0, float64(width)/float64(height))
-	R := math.Cos(math.Pi / 4)
-	world := make(HittableList, 2)
+	cam := NewCamera(
+		mgl64.Vec3{-2.0, 2.0, 1.0},
+		mgl64.Vec3{0.0, 0.0, -1.0},
+		mgl64.Vec3{0, 1.0, 0.0},
+		90.0,
+		float64(width)/float64(height))
+
+	world := make(HittableList, 5)
 	world[0] = Sphere{
-		Center: mgl64.Vec3{-R, 0.0, -1.0},
-		Radius: R,
-		Mat:    Lambertian{Albedo: mgl64.Vec3{0.0, 0.0, 1.0}}}
+		Center: mgl64.Vec3{0.0, 0.0, -1.0},
+		Radius: 0.5,
+		Mat:    Lambertian{Albedo: mgl64.Vec3{0.1, 0.2, 0.5}}}
 	world[1] = Sphere{
-		Center: mgl64.Vec3{R, 0.0, -1.0},
-		Radius: R,
-		Mat:    Lambertian{Albedo: mgl64.Vec3{1.0, 0.0, 0.0}}}
+		Center: mgl64.Vec3{0.0, -100.5, -1.0},
+		Radius: 100,
+		Mat:    Lambertian{Albedo: mgl64.Vec3{0.8, 0.8, 0.0}}}
+	world[2] = Sphere{
+		Center: mgl64.Vec3{1.0, 0.0, -1.0},
+		Radius: 0.5,
+		Mat:    Metallic{Albedo: mgl64.Vec3{0.8, 0.6, 0.2}}}
+	world[3] = Sphere{
+		Center: mgl64.Vec3{-1.0, 0.0, -1.0},
+		Radius: 0.5,
+		Mat:    Dielectric{Refractance: 1.5}}
+	world[4] = Sphere{
+		Center: mgl64.Vec3{-1.0, 0.0, -1.0},
+		Radius: -0.45,
+		Mat:    Dielectric{Refractance: 1.5}}
 
 	for j := 0; j < height; j++ {
 		for i := 0; i < width; i++ {
