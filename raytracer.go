@@ -48,14 +48,73 @@ func getColor(r Ray, world HittableList, depth int) mgl64.Vec3 {
 	return A.Add(B)
 }
 
+// CreateRandomScene creates the "floor with random spheres"
+// scene on pg. 40 of RTiaW.
+func CreateRandomScene() HittableList {
+	n := 500
+	scene := make(HittableList, 0, n)
+
+	floor := Sphere{
+		Center: mgl64.Vec3{0.0, -1000.0, 0},
+		Radius: 1000,
+		Mat:    Lambertian{Albedo: mgl64.Vec3{0.5, 0.5, 0.5}}}
+	scene = append(scene, floor)
+
+	for a := -11; a < 11; a++ {
+		for b := -11; b < 11; b++ {
+			center := mgl64.Vec3{float64(a) + 0.9*rand.Float64(), 0.2, float64(b) + rand.Float64()}
+			if center.Sub(mgl64.Vec3{4, 0.2, 0}).Len() <= 0.9 {
+				continue
+			}
+
+			sphere := Sphere{Center: center, Radius: 0.2}
+			materialChoice := rand.Float64()
+			if materialChoice < 0.8 { // Choose diffuse material for 80% of spheres.
+				r := rand.Float64() * rand.Float64()
+				g := rand.Float64() * rand.Float64()
+				b := rand.Float64() * rand.Float64()
+				sphere.Mat = Lambertian{Albedo: mgl64.Vec3{r, g, b}}
+			} else if materialChoice < 0.95 { // Let 15% of spheres be metallic:
+				r := 0.5 * (1.0 + rand.Float64())
+				g := 0.5 * (1.0 + rand.Float64())
+				b := 0.5 * (1.0 + rand.Float64())
+				fuzz := rand.Float64()
+				sphere.Mat = Metallic{Albedo: mgl64.Vec3{r, g, b}, Fuzziness: fuzz}
+			} else { // Let the rest be dielectric:
+				sphere.Mat = Dielectric{Refractance: 1.5}
+			}
+			scene = append(scene, sphere)
+		}
+	}
+
+	dielectricSphere := Sphere{
+		Center: mgl64.Vec3{0, 1, 0},
+		Radius: 1.0,
+		Mat:    Dielectric{Refractance: 1.5}}
+	diffuseSphere := Sphere{
+		Center: mgl64.Vec3{-4, 1, 0},
+		Radius: 1.0,
+		Mat:    Lambertian{Albedo: mgl64.Vec3{0.4, 0.2, 0.1}}}
+	metalSphere := Sphere{
+		Center: mgl64.Vec3{4, 1, 0},
+		Radius: 1.0,
+		Mat:    Metallic{Albedo: mgl64.Vec3{0.4, 0.2, 0.1}, Fuzziness: 0.0}}
+
+	scene = append(scene, dielectricSphere)
+	scene = append(scene, diffuseSphere)
+	scene = append(scene, metalSphere)
+
+	return scene
+}
+
 // Render ray-traces the scene, outputting an image with the given dimensions.
 func Render(width int, height int, samples int) image.Image {
 	canvas := image.NewNRGBA(image.Rect(0, 0, width, height))
 
-	from := mgl64.Vec3{3, 3, 2}
-	at := mgl64.Vec3{0.0, 0.0, -1.0}
+	from := mgl64.Vec3{13, 2, 3}
+	at := mgl64.Vec3{0.0, 0.0, 0.0}
 	fov := 20.0
-	aperture := 2.0
+	aperture := 0.1
 	focusDistance := from.Sub(at).Len()
 	cam := NewCamera(
 		from,
@@ -66,27 +125,7 @@ func Render(width int, height int, samples int) image.Image {
 		aperture,
 		focusDistance)
 
-	world := make(HittableList, 5)
-	world[0] = Sphere{
-		Center: mgl64.Vec3{0.0, 0.0, -1.0},
-		Radius: 0.5,
-		Mat:    Lambertian{Albedo: mgl64.Vec3{0.1, 0.2, 0.5}}}
-	world[1] = Sphere{
-		Center: mgl64.Vec3{0.0, -100.5, -1.0},
-		Radius: 100,
-		Mat:    Lambertian{Albedo: mgl64.Vec3{0.8, 0.8, 0.0}}}
-	world[2] = Sphere{
-		Center: mgl64.Vec3{1.0, 0.0, -1.0},
-		Radius: 0.5,
-		Mat:    Metallic{Albedo: mgl64.Vec3{0.8, 0.6, 0.2}}}
-	world[3] = Sphere{
-		Center: mgl64.Vec3{-1.0, 0.0, -1.0},
-		Radius: 0.5,
-		Mat:    Dielectric{Refractance: 1.5}}
-	world[4] = Sphere{
-		Center: mgl64.Vec3{-1.0, 0.0, -1.0},
-		Radius: -0.45,
-		Mat:    Dielectric{Refractance: 1.5}}
+	world := CreateRandomScene()
 
 	for j := 0; j < height; j++ {
 		for i := 0; i < width; i++ {
